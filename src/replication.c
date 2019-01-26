@@ -1080,6 +1080,7 @@ void replicationCreateMasterClient(int fd, int dbid) {
     server.master->authenticated = 1;
     server.master->reploff = server.master_initial_offset;
     server.master->read_reploff = server.master->reploff;
+    server.master->user = NULL; /* This client can do everything. */
     memcpy(server.master->replid, server.master_replid,
         sizeof(server.master_replid));
     /* If master offset is set to -1, this master is old and is not
@@ -1253,8 +1254,7 @@ void readSyncBulkPayload(aeEventLoop *el, int fd, void *privdata, int mask) {
                 "Killing process %ld and removing its temp file to avoid "
                 "any race",
                     (long) server.rdb_child_pid);
-            kill(server.rdb_child_pid,SIGUSR1);
-            rdbRemoveTempFile(server.rdb_child_pid);
+            killRDBChild();
         }
 
         if (rename(server.repl_transfer_tmpfile,server.rdb_filename) == -1) {

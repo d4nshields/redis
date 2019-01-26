@@ -202,22 +202,47 @@ typedef long long mstime_t; /* millisecond time type. */
 
 /* Command flags. Please check the command table defined in the redis.c file
  * for more information about the meaning of every flag. */
-#define CMD_WRITE (1<<0)            /* "w" flag */
-#define CMD_READONLY (1<<1)         /* "r" flag */
-#define CMD_DENYOOM (1<<2)          /* "m" flag */
-#define CMD_MODULE (1<<3)           /* Command exported by module. */
-#define CMD_ADMIN (1<<4)            /* "a" flag */
-#define CMD_PUBSUB (1<<5)           /* "p" flag */
-#define CMD_NOSCRIPT (1<<6)         /* "s" flag */
-#define CMD_RANDOM (1<<7)           /* "R" flag */
-#define CMD_SORT_FOR_SCRIPT (1<<8)  /* "S" flag */
-#define CMD_LOADING (1<<9)          /* "l" flag */
-#define CMD_STALE (1<<10)           /* "t" flag */
-#define CMD_SKIP_MONITOR (1<<11)    /* "M" flag */
-#define CMD_ASKING (1<<12)          /* "k" flag */
-#define CMD_FAST (1<<13)            /* "F" flag */
-#define CMD_MODULE_GETKEYS (1<<14)  /* Use the modules getkeys interface. */
-#define CMD_MODULE_NO_CLUSTER (1<<15) /* Deny on Redis Cluster. */
+#define CMD_WRITE (1ULL<<0)            /* "write" flag */
+#define CMD_READONLY (1ULL<<1)         /* "read-only" flag */
+#define CMD_DENYOOM (1ULL<<2)          /* "use-memory" flag */
+#define CMD_MODULE (1ULL<<3)           /* Command exported by module. */
+#define CMD_ADMIN (1ULL<<4)            /* "admin" flag */
+#define CMD_PUBSUB (1ULL<<5)           /* "pub-sub" flag */
+#define CMD_NOSCRIPT (1ULL<<6)         /* "no-script" flag */
+#define CMD_RANDOM (1ULL<<7)           /* "random" flag */
+#define CMD_SORT_FOR_SCRIPT (1ULL<<8)  /* "to-sort" flag */
+#define CMD_LOADING (1ULL<<9)          /* "ok-loading" flag */
+#define CMD_STALE (1ULL<<10)           /* "ok-stale" flag */
+#define CMD_SKIP_MONITOR (1ULL<<11)    /* "no-monitor" flag */
+#define CMD_ASKING (1ULL<<12)          /* "cluster-asking" flag */
+#define CMD_FAST (1ULL<<13)            /* "fast" flag */
+
+/* Command flags used by the module system. */
+#define CMD_MODULE_GETKEYS (1ULL<<14)  /* Use the modules getkeys interface. */
+#define CMD_MODULE_NO_CLUSTER (1ULL<<15) /* Deny on Redis Cluster. */
+
+/* Command flags that describe ACLs categories. */
+#define CMD_CATEGORY_KEYSPACE (1ULL<<16)
+#define CMD_CATEGORY_READ (1ULL<<17)
+#define CMD_CATEGORY_WRITE (1ULL<<18)
+#define CMD_CATEGORY_SET (1ULL<<19)
+#define CMD_CATEGORY_SORTEDSET (1ULL<<20)
+#define CMD_CATEGORY_LIST (1ULL<<21)
+#define CMD_CATEGORY_HASH (1ULL<<22)
+#define CMD_CATEGORY_STRING (1ULL<<23)
+#define CMD_CATEGORY_BITMAP (1ULL<<24)
+#define CMD_CATEGORY_HYPERLOGLOG (1ULL<<25)
+#define CMD_CATEGORY_GEO (1ULL<<26)
+#define CMD_CATEGORY_STREAM (1ULL<<27)
+#define CMD_CATEGORY_PUBSUB (1ULL<<28)
+#define CMD_CATEGORY_ADMIN (1ULL<<29)
+#define CMD_CATEGORY_FAST (1ULL<<30)
+#define CMD_CATEGORY_SLOW (1ULL<<31)
+#define CMD_CATEGORY_BLOCKING (1ULL<<32)
+#define CMD_CATEGORY_DANGEROUS (1ULL<<33)
+#define CMD_CATEGORY_CONNECTION (1ULL<<34)
+#define CMD_CATEGORY_TRANSACTION (1ULL<<35)
+#define CMD_CATEGORY_SCRIPTING (1ULL<<36)
 
 /* AOF states */
 #define AOF_OFF 0             /* AOF is off */
@@ -710,11 +735,21 @@ typedef struct readyList {
 /* This structure represents a Redis user. This is useful for ACLs, the
  * user is associated to the connection after the connection is authenticated.
  * If there is no associated user, the connection uses the default user. */
-#define USER_MAX_COMMAND_BIT 1024
+#define USER_COMMAND_BITS_COUNT 1024    /* The total number of command bits
+                                           in the user structure. The last valid
+                                           command ID we can set in the user
+                                           is USER_COMMAND_BITS_COUNT-1. */
 #define USER_FLAG_ENABLED (1<<0)        /* The user is active. */
 #define USER_FLAG_ALLKEYS (1<<1)        /* The user can mention any key. */
 #define USER_FLAG_ALLCOMMANDS (1<<2)    /* The user can run all commands. */
+#define USER_FLAG_NOPASS      (1<<3)    /* The user requires no password, any
+                                           provided password will work. For the
+                                           default user, this also means that
+                                           no AUTH is needed, and every
+                                           connection is immediately
+                                           authenticated. */
 typedef struct user {
+    sds name;       /* The username as an SDS string. */
     uint64_t flags; /* See USER_FLAG_* */
 
     /* The bit in allowed_commands is set if this user has the right to
@@ -724,13 +759,13 @@ typedef struct user {
      * If the bit for a given command is NOT set and the command has
      * subcommands, Redis will also check allowed_subcommands in order to
      * understand if the command can be executed. */
-    uint64_t allowed_commands[USER_MAX_COMMAND_BIT/64];
+    uint64_t allowed_commands[USER_COMMAND_BITS_COUNT/64];
 
     /* This array points, for each command ID (corresponding to the command
      * bit set in allowed_commands), to an array of SDS strings, terminated by
      * a NULL pointer, with all the sub commands that can be executed for
      * this command. When no subcommands matching is used, the field is just
-     * set to NULL to avoid allocating USER_MAX_COMMAND_BIT pointers. */
+     * set to NULL to avoid allocating USER_COMMAND_BITS_COUNT pointers. */
     sds **allowed_subcommands;
     list *passwords; /* A list of SDS valid passwords for this user. */
     list *patterns;  /* A list of allowed key patterns. If this field is NULL
@@ -770,7 +805,7 @@ typedef struct client {
     time_t lastinteraction; /* Time of the last interaction, used for timeout */
     time_t obuf_soft_limit_reached_time;
     int flags;              /* Client flags: CLIENT_* macros. */
-    int authenticated;      /* When requirepass is non-NULL. */
+    int authenticated;      /* Needed when the default user requires auth. */
     int replstate;          /* Replication state if this is a slave. */
     int repl_put_online_on_ack; /* Install slave write handler on ACK. */
     int repldbfd;           /* Replication DB file descriptor. */
@@ -980,7 +1015,6 @@ struct redisServer {
     int shutdown_asap;          /* SHUTDOWN needed ASAP */
     int activerehashing;        /* Incremental rehash in serverCron() */
     int active_defrag_running;  /* Active defragmentation running (holds current scan aggressiveness) */
-    char *requirepass;          /* Pass for AUTH command, or NULL */
     char *pidfile;              /* PID file path */
     int arch_bits;              /* 32 or 64 depending on sizeof(long) */
     int cronloops;              /* Number of times the cron function run */
@@ -1329,8 +1363,8 @@ struct redisCommand {
     char *name;
     redisCommandProc *proc;
     int arity;
-    char *sflags; /* Flags as string representation, one char per flag. */
-    int flags;    /* The actual flags, obtained from the 'sflags' field. */
+    char *sflags;   /* Flags as string representation, one char per flag. */
+    uint64_t flags; /* The actual flags, obtained from the 'sflags' field. */
     /* Use a function to determine keys arguments in a command line.
      * Used for Redis Cluster redirect. */
     redisGetKeysProc *getkeys_proc;
@@ -1667,6 +1701,7 @@ int writeCommandsDeniedByDiskError(void);
 /* RDB persistence */
 #include "rdb.h"
 int rdbSaveRio(rio *rdb, int *error, int flags, rdbSaveInfo *rsi);
+void killRDBChild(void);
 
 /* AOF persistence */
 void flushAppendOnlyFile(int force);
@@ -1680,6 +1715,7 @@ void backgroundRewriteDoneHandler(int exitcode, int bysignal);
 void aofRewriteBufferReset(void);
 unsigned long aofRewriteBufferSize(void);
 ssize_t aofReadDiffFromParent(void);
+void killAppendOnlyChild(void);
 
 /* Child info */
 void openChildInfoPipe(void);
@@ -1690,10 +1726,17 @@ void receiveChildInfo(void);
 /* acl.c -- Authentication related prototypes. */
 extern user *DefaultUser;
 void ACLInit(void);
+/* Return values for ACLCheckUserCredentials(). */
+#define ACL_OK 0
+#define ACL_DENIED_CMD 1
+#define ACL_DENIED_KEY 2
 int ACLCheckUserCredentials(robj *username, robj *password);
 unsigned long ACLGetCommandID(const char *cmdname);
 user *ACLGetUserByName(const char *name, size_t namelen);
 int ACLCheckCommandPerm(client *c);
+int ACLSetUser(user *u, const char *op, ssize_t oplen);
+sds ACLDefaultUserFirstPassword(void);
+uint64_t ACLGetCommandCategoryFlagByName(const char *name);
 
 /* Sorted sets data type */
 
@@ -2185,6 +2228,7 @@ void xinfoCommand(client *c);
 void xdelCommand(client *c);
 void xtrimCommand(client *c);
 void lolwutCommand(client *c);
+void aclCommand(client *c);
 
 #if defined(__GNUC__)
 void *calloc(size_t count, size_t size) __attribute__ ((deprecated));
