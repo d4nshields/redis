@@ -157,9 +157,10 @@ static void resetClient(client c) {
 static void randomizeClientKey(client c) {
     size_t i;
 
+    size_t r_choice = random() % config.randomkeys_keyspacelen;     // patch: use same random number for all substitutions on same set of commands
     for (i = 0; i < c->randlen; i++) {
         char *p = c->randptr[i]+11;
-        size_t r = random() % config.randomkeys_keyspacelen;
+        size_t r = r_choice;
         size_t j;
 
         for (j = 0; j < 12; j++) {
@@ -476,6 +477,8 @@ static void benchmark(char *title, char *cmd, int len) {
     freeAllClients();
 }
 
+#define ARRAY_SIZEOF(a) (unsigned)(sizeof(a)/sizeof(a[0]))
+
 /* Returns number of consumed options. */
 int parseOptions(int argc, const char **argv) {
     int i;
@@ -718,6 +721,7 @@ int main(int argc, const char **argv) {
     /* Run default benchmark suite. */
     data = zmalloc(config.datasize+1);
     do {
+        fprintf( stdout, "iteration\n");
         memset(data,'x',config.datasize);
         data[config.datasize] = '\0';
 
@@ -732,6 +736,12 @@ int main(int argc, const char **argv) {
 
         if (test_is_selected("set")) {
             len = redisFormatCommand(&cmd,"SET key:__rand_int__ %s",data);
+            benchmark("SET",cmd,len);
+            free(cmd);
+        }
+
+        if (test_is_selected("expire")) {
+            len = redisFormatCommand(&cmd,"SET key:__rand_int__ %s\r\nEXPIRE key:__rand_int__ 1", data);
             benchmark("SET",cmd,len);
             free(cmd);
         }
