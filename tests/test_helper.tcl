@@ -30,6 +30,7 @@ set ::all_tests {
     unit/type/stream-cgroups
     unit/sort
     unit/expire
+    unit/expirestress
     unit/other
     unit/multi
     unit/quit
