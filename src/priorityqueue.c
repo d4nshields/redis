@@ -35,26 +35,41 @@
 #include "priorityqueue.h"
 #include "../other/pairing-heap/heap.h"
 
-/**
- * @todo need to define how the compareTo function is passed in
- */
 
-void priorityqueue_insert(void *queue, void *item)
+
+struct priq_wrapper_redis
+{
+    long long value;         // priority is redis timestamp on key
+    struct heap_elem elem;
+}
+
+bool value_less(const struct heap_elem *a, const struct heap_elem *b, void *aux)
+{
+    
+}
+
+static void priorityqueue_insert(void *queue, void *item)
 {
     if( queue || item) {}
     return;
 }
 
-void * priorityqueue_peekmin( void * queue)
+static void * priorityqueue_findmin( void * queue)
 {
     if( queue) {}
     
     return (void *)0;
 }
 
-void priorityqueue_deletemin( void * queue)
+static void priorityqueue_deletemin( void * queue)
 {
     if( queue) {}
     
     return;
 }
+
+void priorityQueueInsert( redisDb *db, rboj *key, long long when)
+{
+    
+}
+
