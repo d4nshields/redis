@@ -30,13 +30,4 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-typedef struct priorityqueueRoot {
-    // whatever we need to define a root...
-    int foo;
-} pqobj;
-
-void priorityqueue_insert(void *queue, void *item);
-
-void * priorityqueue_peekmin( void * queue);
-
-void priorityqueue_deletemin( void * queue);
+void priorityqueueInsert( redisDb *db, robj *key, long long when);

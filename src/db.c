@@ -30,9 +30,11 @@
 #include "server.h"
 #include "cluster.h"
 #include "atomicvar.h"
+#include "priorityqueue.h"
 
 #include <signal.h>
 #include <ctype.h>
+
 
 /*-----------------------------------------------------------------------------
  * C-level DB API

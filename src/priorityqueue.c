@@ -33,42 +33,25 @@
 #include "server.h"
 
 #include "priorityqueue.h"
-#include "../other/pairing-heap/heap.h"
+#include "heap.h"
 
-
+typedef struct priorityqueueRoot {
+    // whatever we need to define a root...
+    int foo;
+} pqobj;
 
 struct priq_wrapper_redis
 {
-    long long value;         // priority is redis timestamp on key
+    long long value;         // priority is Redis timestamp on key
     struct heap_elem elem;
-}
+};
 
 bool value_less(const struct heap_elem *a, const struct heap_elem *b, void *aux)
 {
     
 }
 
-static void priorityqueue_insert(void *queue, void *item)
-{
-    if( queue || item) {}
-    return;
-}
-
-static void * priorityqueue_findmin( void * queue)
-{
-    if( queue) {}
-    
-    return (void *)0;
-}
-
-static void priorityqueue_deletemin( void * queue)
-{
-    if( queue) {}
-    
-    return;
-}
-
-void priorityQueueInsert( redisDb *db, rboj *key, long long when)
+void priorityqueueInsert( redisDb *db, robj *key, long long when)
 {
     
 }
