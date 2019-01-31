@@ -1,5 +1,7 @@
-/* Implementation of generic priority queue.
- *
+/* Adapter class from Redis structures to a pairing-heap priority queue implementation
+ * The specific implementation was chosen at random, and I will further abstract this 
+ * adapter so that I can plug in various algorithms to prioritize expiration effort 
+ * and produce benchmarks for each algorithm.
  * ----------------------------------------------------------------------------
  *
  * Copyright (c) 2019-, Daniel Shields <d4nshields at gmail dot com>
@@ -30,4 +32,25 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-void priorityqueueInsert( redisDb *db, robj *key, long long when);
+#include <stdio.h>
+#include "server.h"
+
+#include "priorityqueue.h"
+#include <heap.h>
+
+struct priq_wrapper_redis
+{
+    long long value;         // priority is Redis timestamp on key
+    struct heap_elem elem;
+};
+
+bool value_less(const struct heap_elem *a, const struct heap_elem *b, void *aux)
+{
+    
+}
+
+void priorityqueueInsert( redisDb *db, robj *key, long long when)
+{
+    fprintf( stderr, "priorityqueueInsert()");
+}
+

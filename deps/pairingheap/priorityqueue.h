@@ -30,29 +30,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef __PRIORITYQUEUE_H
+#define __PRIORITYQUEUE_H
+
 #include "server.h"
 
-#include "priorityqueue.h"
-#include "heap.h"
+void priorityqueueInsert( redisDb *db, robj *key, long long when);
 
-typedef struct priorityqueueRoot {
-    // whatever we need to define a root...
-    int foo;
-} pqobj;
-
-struct priq_wrapper_redis
-{
-    long long value;         // priority is Redis timestamp on key
-    struct heap_elem elem;
-};
-
-bool value_less(const struct heap_elem *a, const struct heap_elem *b, void *aux)
-{
-    
-}
-
-void priorityqueueInsert( redisDb *db, robj *key, long long when)
-{
-    
-}
-
+#endif

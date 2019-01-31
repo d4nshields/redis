@@ -48,6 +48,7 @@
 #include <netinet/in.h>
 #include <lua.h>
 #include <signal.h>
+#include <priorityqueue.h>
 
 typedef long long mstime_t; /* millisecond time type. */
 
@@ -655,6 +656,11 @@ typedef struct clientReplyBlock {
     char buf[];
 } clientReplyBlock;
 
+typedef struct priorityqueue {
+    // whatever we need to define a root...
+    int foo;
+} priorityqueue;
+
 /* Redis database representation. There are multiple databases identified
  * by integers from 0 (the default database) up to the max configured
  * database. The database number is the 'id' field in the structure. */
@@ -667,6 +673,7 @@ typedef struct redisDb {
     int id;                     /* Database ID */
     long long avg_ttl;          /* Average TTL, just for stats */
     list *defrag_later;         /* List of key names to attempt to defrag one by one, gradually. */
+    priorityqueue *expire_queue;
 } redisDb;
 
 /* Client MULTI/EXEC state */
