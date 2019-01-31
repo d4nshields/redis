@@ -27,7 +27,7 @@ INSTALL_PKGCONF_PATH= $(INSTALL_LIBRARY_PATH)/$(PKGCONF_PATH)
 CC:=$(shell sh -c 'type $${CC%% *} >/dev/null 2>/dev/null && echo $(CC) || echo gcc')
 CXX:=$(shell sh -c 'type $${CXX%% *} >/dev/null 2>/dev/null && echo $(CXX) || echo g++')
 OPTIMIZATION?=-O3
-WARNINGS=-Wall -W -Wstrict-prototypes -Wwrite-strings
+WARNINGS=-W -Wwrite-strings -Wunused-value 
 DEBUG_FLAGS?= -g -ggdb
 REAL_CFLAGS=$(OPTIMIZATION) -fPIC $(CPPFLAGS) $(CFLAGS) $(WARNINGS) $(DEBUG_FLAGS)
 REAL_LDFLAGS=$(LDFLAGS)
@@ -44,7 +44,7 @@ STLIB_MAKE_CMD=ar rcs $(STLIBNAME)
 # Platform-specific overrides
 uname_S := $(shell sh -c 'uname -s 2>/dev/null || echo not')
 ifeq ($(uname_S),SunOS)
-  REAL_LDFLAGS+= -ldl -lnsl -lsocket
+  REAL_LDFLAGS+= -ldl -lnsl -lsocket -lc
   DYLIB_MAKE_CMD=$(CC) -G -o $(DYLIBNAME) -h $(DYLIB_MINOR_NAME) $(LDFLAGS)
 endif
 ifeq ($(uname_S),Darwin)
@@ -58,6 +58,9 @@ all: $(DYLIBNAME) $(STLIBNAME) $(PKGCONFNAME)
 # Deps (use make dep to generate this)
 heap.o: heap.c heap.h
 
+test: priorityqueue_test.o priorityqueue.o heap.o
+	$(CC) $(LDFLAGS) priorityqueue_test.o priorityqueue.o heap.o -lc -o test
+
 $(DYLIBNAME): $(OBJ)
 	$(DYLIB_MAKE_CMD) $(OBJ)
 
@@ -67,7 +70,7 @@ $(STLIBNAME): $(OBJ)
 dynamic: $(DYLIBNAME)
 static: $(STLIBNAME)
 
-hiredis-%: %.o $(STLIBNAME)
+heap-%: %.o $(STLIBNAME)
 	$(CC) $(REAL_CFLAGS) -o $@ $(REAL_LDFLAGS) $< $(STLIBNAME)
 
 .c.o:
@@ -81,7 +84,7 @@ dep:
 
 INSTALL?= cp -pPR
 
-$(PKGCONFNAME): hiredis.h
+$(PKGCONFNAME): heap.h
 	@echo "Generating $@ for pkgconfig..."
 	@echo prefix=$(PREFIX) > $@
 	@echo exec_prefix=\$${prefix} >> $@
@@ -121,8 +124,8 @@ gcov:
 coverage: gcov
 	make check
 	mkdir -p tmp/lcov
-	lcov -d . -c -o tmp/lcov/hiredis.info
-	genhtml --legend -o tmp/lcov/report tmp/lcov/hiredis.info
+	lcov -d . -c -o tmp/lcov/heap.info
+	genhtml --legend -o tmp/lcov/report tmp/lcov/heap.info
 
 noopt:
 	$(MAKE) OPTIMIZATION=""

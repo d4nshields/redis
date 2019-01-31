@@ -1,0 +1,10 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=/usr/local/
+includedir=/usr/local/
+
+Name: heap
+Description: Minimalistic C client library for Redis.
+Version: ..
+Libs: -L${libdir} -lheap
+Cflags: -I${includedir} -D_FILE_OFFSET_BITS=64

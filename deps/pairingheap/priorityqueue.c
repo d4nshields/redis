@@ -1,56 +1,63 @@
-/* Adapter class from Redis structures to a pairing-heap priority queue implementation
- * The specific implementation was chosen at random, and I will further abstract this 
- * adapter so that I can plug in various algorithms to prioritize expiration effort 
- * and produce benchmarks for each algorithm.
- * ----------------------------------------------------------------------------
- *
- * Copyright (c) 2019-, Daniel Shields <d4nshields at gmail dot com>
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *   * Redistributions of source code must retain the above copyright notice,
- *     this list of conditions and the following disclaimer.
- *   * Redistributions in binary form must reproduce the above copyright
- *     notice, this list of conditions and the following disclaimer in the
- *     documentation and/or other materials provided with the distribution.
- *   * Neither the name of Redis nor the names of its contributors may be used
- *     to endorse or promote products derived from this software without
- *     specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- */
 
 #include <stdio.h>
-#include "server.h"
+#include <malloc.h>
 
 #include "priorityqueue.h"
-#include <heap.h>
+#include "heap.h"
 
-struct priq_wrapper_redis
+bool wrapper_less( 
+    const struct heap_elem *a,
+    const struct heap_elem *b,
+    void * aux
+  )
 {
-    long long value;         // priority is Redis timestamp on key
-    struct heap_elem elem;
-};
+    if( aux != aux) {
+      ;
+    }
+    return heap_entry( a, struct item_wrapper, elem)->priority
+        < heap_entry( b, struct item_wrapper, elem)->priority;
+}
 
-bool value_less(const struct heap_elem *a, const struct heap_elem *b, void *aux)
+/**
+ * Insert pointer to data into the priority queue within h
+ * at priority itemPriority
+ */
+void priorityqueueInsert( 
+    struct heap *h, 
+    void *item, 
+    long long itemPriority
+  )
 {
+    heap_init( h, wrapper_less);
+    struct item_wrapper * wrapper = malloc( sizeof( struct item_wrapper));
+    wrapper->priority = itemPriority;
+    wrapper->item = item;
     
+    heap_insert( h, &wrapper->elem, NULL);
 }
 
-void priorityqueueInsert( redisDb *db, robj *key, long long when)
+void *priorityqueueDeleteMin(
+    struct heap *h
+  )
 {
-    fprintf( stderr, "priorityqueueInsert()");
+    heap_init( h, wrapper_less);
+    struct heap_elem *e = heap_pop( h, NULL);
+    struct item_wrapper *wrapper = heap_entry( e, struct item_wrapper, elem);
+    void * item = wrapper->item;
+    free( wrapper);
+    return item;
 }
 
+long long priorityqueueMin(
+    struct heap *h
+  )
+{
+    fprintf( stderr, "priorityqueueMin()\n");
+    heap_init( h, wrapper_less);
+    fprintf( stderr, "2\n");
+    struct heap_elem *e = heap_peek( h);
+    struct item_wrapper *wrapper = heap_entry( e, struct item_wrapper, elem);
+    fprintf( stderr, "3\n");
+    fprintf( stderr, "priority=%lld", wrapper->priority);
+    return wrapper->priority;
+}

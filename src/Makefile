@@ -20,7 +20,7 @@ DEPENDENCY_TARGETS=hiredis linenoise lua pairingheap
 NODEPS:=clean distclean
 
 # Default settings
-STD=-std=c99 -pedantic -DREDIS_STATIC=''
+STD=-std=c99 -pedantic
 ifneq (,$(findstring clang,$(CC)))
 ifneq (,$(findstring FreeBSD,$(uname_S)))
   STD+=-Wno-c11-extensions
