@@ -11,6 +11,10 @@ struct item_wrapper
     struct heap_elem elem;
 };
 
+void priorityqueueInit( 
+    struct heap *h
+  );
+
 void priorityqueueInsert( 
     struct heap  *h, 
     void *item, 

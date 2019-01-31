@@ -13,29 +13,27 @@
 
 void testInsert()
 {
-    const int num = 1;
+    const int num = 1000000;
     time_t t;
     struct heap h;
     
     /* Intializes random number generator */
     srand((unsigned) time(&t));
     
+    priorityqueueInit( &h);
     int i;
     for( i=0; i < num; i++) {
-        fprintf( stdout, "filling:\n");
         long long p = (long long)rand();
-        fprintf( stderr, "inserting %lld\n", p);
+//        fprintf( stderr, "-> %lld\n", p);
         priorityqueueInsert( &h, (void *)0, p);
-        fprintf( stderr, "done\n");
     }
+    fprintf( stderr, "done inserts\n");
     for( i=0; i < num; i++) {
-        fprintf( stdout, "draining:\n");
         long long min = priorityqueueMin( &h);
-        fprintf( stderr, "deleting %lld\n", min);
-        fprintf( stdout, "%lld", min);
+        fprintf( stdout, "%lld\n", min);
         priorityqueueDeleteMin( &h);
-        fprintf( stderr, "done\n");
     }
+    fprintf( stderr, "done deletes\n");
 }
 
 
