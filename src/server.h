@@ -47,7 +47,7 @@
 #include <syslog.h>
 #include <netinet/in.h>
 #include <lua.h>
-// #include <heap.h>
+#include <heap.h>
 #include <signal.h>
 
 
@@ -674,13 +674,15 @@ typedef struct redisDb {
 /* key_expiry_memo. Remembers a key in a db along with it's expiry time,
  * with an additional structure to allow it to be a member of a priority queue 
  * based on the timestamp property */
-/*struct key_expiry_memo
+struct key_expiry_memo
 {
     mstime_t when;
     redisDb * db;
     robj * key;
     struct heap_elem elem;
-};*/
+};
+void enqueueKeyExpiration( redisDb *db, robj *key, mstime_t when);
+struct key_expiry_memo *dequeueNextExpired( mstime_t min);
 
 /* Client MULTI/EXEC state */
 typedef struct multiCmd {

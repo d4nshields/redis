@@ -1078,7 +1078,7 @@ void setExpire(client *c, redisDb *db, robj *key, long long when) {
     serverAssertWithInfo(NULL,key,kde != NULL);
     de = dictAddOrFind(db->expires,dictGetKey(kde));
     dictSetSignedIntegerVal(de,when);
-    priorityqueueInsert( db, key, when);
+    enqueueKeyExpiration( db, key, (mstime_t)when);
 
     int writable_slave = server.masterhost && server.repl_slave_ro == 0;
     if (c && writable_slave && !(c->flags & CLIENT_MASTER))

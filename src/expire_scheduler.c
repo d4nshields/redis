@@ -1,6 +1,6 @@
 
-#include <heap.h>
 #include "server.h"
+#include <heap.h>
 #include "zmalloc.h"
 
 struct heap heaproot;
