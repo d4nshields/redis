@@ -15,7 +15,7 @@
 release_hdr := $(shell sh -c './mkreleasehdr.sh')
 uname_S := $(shell sh -c 'uname -s 2>/dev/null || echo not')
 uname_M := $(shell sh -c 'uname -m 2>/dev/null || echo not')
-OPTIMIZATION?=-O2
+OPTIMIZATION?=-Og
 DEPENDENCY_TARGETS=hiredis linenoise lua pairingheap
 NODEPS:=clean distclean
 

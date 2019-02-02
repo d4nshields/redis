@@ -3,6 +3,7 @@
 #include <heap.h>
 #include "zmalloc.h"
 
+bool inited = 0;
 struct heap heaproot;
 
 bool key_less_fn( 
@@ -18,10 +19,14 @@ bool key_less_fn(
 void initExpirationScheduler()
 {
     heap_init( &heaproot, key_less_fn);
+    inited = 1;
 }
 
 void enqueueKeyExpiration( redisDb *db, robj *key, mstime_t when)
 {
+    if( !inited) {
+        initExpirationScheduler();
+    }
     struct key_expiry_memo * memo = zmalloc( sizeof( struct key_expiry_memo));
     memo->db = db;
     memo->key = key;
@@ -37,6 +42,9 @@ void enqueueKeyExpiration( redisDb *db, robj *key, mstime_t when)
  */
 struct key_expiry_memo *dequeueNextExpired( mstime_t min)
 {
+    if( !inited) {
+        initExpirationScheduler();
+    }
     struct heap_elem *e = heap_peek( &heaproot);
     if( e) {
         struct key_expiry_memo * memo = heap_entry( e, struct key_expiry_memo, elem);
