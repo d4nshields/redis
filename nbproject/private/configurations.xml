@@ -47,6 +47,7 @@
       <in>endianconv.h</in>
       <in>evict.c</in>
       <in>expire.c</in>
+      <in>expire_scheduler.c</in>
       <in>fmacros.h</in>
       <in>geo.c</in>
       <in>geo.h</in>

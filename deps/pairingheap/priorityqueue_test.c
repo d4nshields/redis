@@ -13,7 +13,7 @@
 
 void testInsert()
 {
-    const int num = 1000000;
+    const int num = 10000000;
     time_t t;
     struct heap h;
     
@@ -28,9 +28,11 @@ void testInsert()
         priorityqueueInsert( &h, (void *)0, p);
     }
     fprintf( stderr, "done inserts\n");
-    for( i=0; i < num; i++) {
+    while( 1) {
         long long min = priorityqueueMin( &h);
-        fprintf( stdout, "%lld\n", min);
+        if( min == -1)
+            break;
+//        fprintf( stdout, "%lld\n", min);
         priorityqueueDeleteMin( &h);
     }
     fprintf( stderr, "done deletes\n");

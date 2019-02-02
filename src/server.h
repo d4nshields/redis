@@ -47,8 +47,9 @@
 #include <syslog.h>
 #include <netinet/in.h>
 #include <lua.h>
+// #include <heap.h>
 #include <signal.h>
-#include <priorityqueue.h>
+
 
 typedef long long mstime_t; /* millisecond time type. */
 
@@ -656,11 +657,6 @@ typedef struct clientReplyBlock {
     char buf[];
 } clientReplyBlock;
 
-typedef struct priorityqueue {
-    // whatever we need to define a root...
-    int foo;
-} priorityqueue;
-
 /* Redis database representation. There are multiple databases identified
  * by integers from 0 (the default database) up to the max configured
  * database. The database number is the 'id' field in the structure. */
@@ -673,8 +669,18 @@ typedef struct redisDb {
     int id;                     /* Database ID */
     long long avg_ttl;          /* Average TTL, just for stats */
     list *defrag_later;         /* List of key names to attempt to defrag one by one, gradually. */
-    priorityqueue *expire_queue;
 } redisDb;
+
+/* key_expiry_memo. Remembers a key in a db along with it's expiry time,
+ * with an additional structure to allow it to be a member of a priority queue 
+ * based on the timestamp property */
+/*struct key_expiry_memo
+{
+    mstime_t when;
+    redisDb * db;
+    robj * key;
+    struct heap_elem elem;
+};*/
 
 /* Client MULTI/EXEC state */
 typedef struct multiCmd {

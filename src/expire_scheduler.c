@@ -1,57 +1,49 @@
 
 #include <heap.h>
 #include "server.h"
-
-struct item_wrapper
-{
-    long long priority;
-    redisDb * db;
-    robj * key;
-    struct heap_elem elem;
-};
+#include "zmalloc.h"
 
 struct heap heaproot;
 
-bool wrapper_less( 
+bool key_less_fn( 
     const struct heap_elem *a,
     const struct heap_elem *b,
     void * aux
   )
 {
-    if( aux != aux) {
-      ;
-    }
-    return heap_entry( a, struct item_wrapper, elem)->priority
-        < heap_entry( b, struct item_wrapper, elem)->priority;
+    return heap_entry( a, struct key_expiry_memo, elem)->when
+        < heap_entry( b, struct key_expiry_memo, elem)->when;
 }
 
 void initExpirationScheduler()
 {
-    heap_init( &heaproot, wrapper_less);
+    heap_init( &heaproot, key_less_fn);
 }
 
-void enqueueExpiration( redisDb *db, robj *key, long long when)
+void enqueueKeyExpiration( redisDb *db, robj *key, mstime_t when)
 {
-    struct item_wrapper * wrapper = malloc( sizeof( struct item_wrapper));
-    wrapper->db = db;
-    wrapper->key = key;
-    heap_insert( &heaproot, &wrapper->elem, NULL);
+    struct key_expiry_memo * memo = zmalloc( sizeof( struct key_expiry_memo));
+    memo->db = db;
+    memo->key = key;
+    memo->when = when;
+    heap_insert( &heaproot, &memo->elem, NULL);
 }
 
 /**
- * if root element of queue is greater than min, pop it off
+ * if the next element in queue is less than or equal to min, then it is ready to expire, 
+ * pop it off.
  * @param min
  * @return 
  */
-dequeueNextExpired( long long min)
+struct key_expiry_memo *dequeueNextExpired( mstime_t min)
 {
     struct heap_elem *e = heap_peek( &heaproot);
     if( e) {
-        struct item_wrapper * wrapper = heap_entry( e, struct item_wrapper, elem);
-        if( wrapper->priority <= min) {
+        struct key_expiry_memo * memo = heap_entry( e, struct key_expiry_memo, elem);
+        if( memo->when <= min) {
             e = heap_pop( &heaproot, NULL);
-            wrapper = heap_entry( e, struct item_wrapper, elem);
-            return wrapper;
+            memo = heap_entry( e, struct key_expiry_memo, elem);
+            return memo;
         }
     }
     return NULL;

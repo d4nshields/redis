@@ -26,6 +26,7 @@
       <in>endianconv.c</in>
       <in>evict.c</in>
       <in>expire.c</in>
+      <in>expire_scheduler.c</in>
       <in>geo.c</in>
       <in>geohash.c</in>
       <in>geohash_helper.c</in>
@@ -115,6 +116,15 @@
           <buildCommand>${MAKE} -f Makefile</buildCommand>
           <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
           <executablePath></executablePath>
+          <cTool>
+            <incDir>
+              <pElem>deps/hiredis</pElem>
+              <pElem>deps/jemalloc</pElem>
+              <pElem>deps/linenoise</pElem>
+              <pElem>deps/lua</pElem>
+              <pElem>deps/pairingheap</pElem>
+            </incDir>
+          </cTool>
         </makeTool>
         <preBuild>
           <preBuildCommandWorkingDir>.</preBuildCommandWorkingDir>
@@ -133,6 +143,20 @@
           </makeArtifact>
         </requiredProjects>
       </makefileType>
+      <item path="deps/pairingheap/priorityqueue.c" ex="false" tool="0" flavor2="3">
+        <cTool flags="0">
+          <incDir>
+            <pElem>deps/lua/src</pElem>
+            <pElem>deps/jemalloc/include/jemalloc</pElem>
+            <pElem>src</pElem>
+          </incDir>
+        </cTool>
+      </item>
+      <item path="deps/pairingheap/priorityqueue_test.c"
+            ex="false"
+            tool="0"
+            flavor2="0">
+      </item>
       <item path="src/acl.c" ex="false" tool="0" flavor2="3">
         <cTool flags="0">
           <incDir>
@@ -374,6 +398,8 @@
           </incDir>
         </cTool>
       </item>
+      <item path="src/expire_scheduler.c" ex="false" tool="0" flavor2="0">
+      </item>
       <item path="src/geo.c" ex="false" tool="0" flavor2="3">
         <cTool flags="0">
           <incDir>
@@ -546,17 +572,6 @@
             <pElem>src</pElem>
           </incDir>
         </cTool>
-      </item>
-      <item path="src/priorityqueue.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
-          <incDir>
-            <pElem>deps/lua/src</pElem>
-            <pElem>deps/jemalloc/include/jemalloc</pElem>
-            <pElem>src</pElem>
-          </incDir>
-        </cTool>
-      </item>
-      <item path="src/priorityqueue_test.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/pubsub.c" ex="false" tool="0" flavor2="3">
         <cTool flags="0">

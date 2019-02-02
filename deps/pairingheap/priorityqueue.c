@@ -46,20 +46,10 @@ void *priorityqueueDeleteMin(
     struct heap *h
   )
 {
-    struct timeval tv;
-    gettimeofday( &tv, NULL);
-    long long ts_start = tv.tv_sec*1000LL + tv.tv_usec/1000;
-    //
     struct heap_elem *e = heap_pop( h, NULL);
     struct item_wrapper *wrapper = heap_entry( e, struct item_wrapper, elem);
     void * item = wrapper->item;
     free( wrapper);
-    //
-    gettimeofday( &tv, NULL);
-    long long ts_end = tv.tv_sec*1000LL + tv.tv_usec/1000;
-    if( ts_end < ts_start) {
-        fprintf( stderr, "time diff: %lld milliseconds.", ts_end-ts_start);
-    }
     return item;
 }
 
@@ -68,6 +58,10 @@ long long priorityqueueMin(
   )
 {
     struct heap_elem *e = heap_peek( h);
-    struct item_wrapper *wrapper = heap_entry( e, struct item_wrapper, elem);
-    return wrapper->priority;
+    if( e) {
+        struct item_wrapper *wrapper = heap_entry( e, struct item_wrapper, elem);
+        return wrapper->priority;
+    } else {
+        return -1;
+    }
 }
