@@ -45,6 +45,7 @@
 
 #include "dict.h"
 #include "zmalloc.h"
+#include "server.h"
 #ifndef DICT_BENCHMARK_MAIN
 #include "redisassert.h"
 #else
@@ -485,12 +486,16 @@ dictEntry *dictFind(dict *d, const void *key)
         idx = h & d->ht[table].sizemask;
         he = d->ht[table].table[idx];
         while(he) {
-            if (key==he->key || dictCompareKeys(d, key, he->key))
+    serverLog( LL_DEBUG, "d4n: dictFind: looking for %s comparing with %s", (char *)key, (char *)he->key);
+            if (key==he->key || dictCompareKeys(d, key, he->key)) {
                 return he;
+            }
             he = he->next;
         }
+    serverLog( LL_DEBUG, "d4n: dictFind: !dictIsRehashing");
         if (!dictIsRehashing(d)) return NULL;
     }
+    serverLog( LL_DEBUG, "d4n: dictFind: he->key=NULL");
     return NULL;
 }
 

@@ -1365,6 +1365,9 @@ struct redisServer {
     pthread_mutex_t lruclock_mutex;
     pthread_mutex_t next_client_id_mutex;
     pthread_mutex_t unixtime_mutex;
+    
+    /* a config setting for Dan Shields (d4n) to turn ON/OFF private mods */
+    int d4n_expiremod;
 };
 
 typedef struct pubsubPattern {

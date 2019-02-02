@@ -1,0 +1,13 @@
+# numsamples,requestspersecond
+2097152,17526.07 requests per second
+1048576,15456.38 requests per second
+524288,15783.73 requests per second
+262144,15946.47 requests per second
+131072,13890.63 requests per second
+65536,18034.12 requests per second
+32768,20778.69 requests per second
+16384,22080.86 requests per second
+8192,21557.89 requests per second
+4096,21787.23 requests per second
+2048,19883.50 requests per second
+1024,19692.31 requests per second

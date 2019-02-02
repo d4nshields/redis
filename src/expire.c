@@ -190,8 +190,24 @@ void activeExpireCycle(int type) {
                 dictEntry *de;
                 long long ttl;
 
-                if ((de = dictGetRandomKey(db->expires)) == NULL) break;
+                if( server.d4n_expiremod) {
+                    struct key_expiry_memo * keymemo = dequeueNextExpired( now);
+                    if( !keymemo) break;
+                    db = keymemo->db;                                               // change db to the one in which presently expiring key resides
+    serverLog( LL_DEBUG, "d4n: trying to expire: %s", (char *)keymemo->key->ptr);
+                    de = dictFind( keymemo->db->dict, keymemo->key);
+                    if( !de) {
+    serverLog( LL_DEBUG, "d4n: key wasn't found: %s", (char *)keymemo->key->ptr);
+                        break;
+                    }
+    serverLog( LL_DEBUG, "d4n: got a `de` !!");
+                } else {
+                    if ((de = dictGetRandomKey(db->expires)) == NULL) break;
+                }
+    serverLog( LL_DEBUG, "d4n: dequeueNextExpired() now=%lld", now);
+    serverLog( LL_DEBUG, "d4n: dequeueNextExpired() dictGetSignedIntegerVal=%ld", dictGetSignedIntegerVal(de));
                 ttl = dictGetSignedIntegerVal(de)-now;
+    serverLog( LL_DEBUG, "d4n: dequeueNextExpired() ttl=%lld", ttl);
                 if (activeExpireCycleTryExpire(db,de,now)) expired++;
                 if (ttl > 0) {
                     /* We want the average TTL of keys yet not expired. */

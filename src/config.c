@@ -607,6 +607,8 @@ void loadServerConfigFromString(char *config) {
             server.zset_max_ziplist_entries = memtoll(argv[1], NULL);
         } else if (!strcasecmp(argv[0],"zset-max-ziplist-value") && argc == 2) {
             server.zset_max_ziplist_value = memtoll(argv[1], NULL);
+        } else if (!strcasecmp(argv[0],"d4n-expiremod") && argc == 2) {
+            server.d4n_expiremod = memtoll(argv[1], NULL);
         } else if (!strcasecmp(argv[0],"hll-sparse-max-bytes") && argc == 2) {
             server.hll_sparse_max_bytes = memtoll(argv[1], NULL);
         } else if (!strcasecmp(argv[0],"rename-command") && argc == 3) {

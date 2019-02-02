@@ -24,6 +24,7 @@ void initExpirationScheduler()
 
 void enqueueKeyExpiration( redisDb *db, robj *key, mstime_t when)
 {
+//    serverLog( LL_DEBUG, "d4n: enqueueKeyExpiration()");
     if( !inited) {
         initExpirationScheduler();
     }
@@ -42,6 +43,7 @@ void enqueueKeyExpiration( redisDb *db, robj *key, mstime_t when)
  */
 struct key_expiry_memo *dequeueNextExpired( mstime_t min)
 {
+//    serverLog( LL_DEBUG, "d4n: dequeueNextExpired()");
     if( !inited) {
         initExpirationScheduler();
     }
