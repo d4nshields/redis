@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configurationDescriptor version="100">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
-    <df root="src" name="1">
+    <df root="src" name="0">
       <in>acl.c</in>
       <in>adlist.c</in>
       <in>ae.c</in>
@@ -26,7 +26,6 @@
       <in>endianconv.c</in>
       <in>evict.c</in>
       <in>expire.c</in>
-      <in>expire_scheduler.c</in>
       <in>geo.c</in>
       <in>geohash.c</in>
       <in>geohash_helper.c</in>
@@ -47,8 +46,6 @@
       <in>notify.c</in>
       <in>object.c</in>
       <in>pqsort.c</in>
-      <in>priorityqueue.c</in>
-      <in>priorityqueue_test.c</in>
       <in>pubsub.c</in>
       <in>quicklist.c</in>
       <in>rand.c</in>
@@ -116,13 +113,16 @@
           <buildCommand>${MAKE} -f Makefile</buildCommand>
           <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
           <executablePath></executablePath>
-          <cTool>
+          <cTool flags="0">
             <incDir>
               <pElem>deps/hiredis</pElem>
               <pElem>deps/jemalloc</pElem>
               <pElem>deps/linenoise</pElem>
               <pElem>deps/lua</pElem>
               <pElem>deps/pairingheap</pElem>
+              <pElem>deps/lua/src</pElem>
+              <pElem>deps/jemalloc/include/jemalloc</pElem>
+              <pElem>src</pElem>
             </incDir>
           </cTool>
         </makeTool>
@@ -143,20 +143,6 @@
           </makeArtifact>
         </requiredProjects>
       </makefileType>
-      <item path="deps/pairingheap/priorityqueue.c" ex="false" tool="0" flavor2="3">
-        <cTool flags="0">
-          <incDir>
-            <pElem>deps/lua/src</pElem>
-            <pElem>deps/jemalloc/include/jemalloc</pElem>
-            <pElem>src</pElem>
-          </incDir>
-        </cTool>
-      </item>
-      <item path="deps/pairingheap/priorityqueue_test.c"
-            ex="false"
-            tool="0"
-            flavor2="0">
-      </item>
       <item path="src/acl.c" ex="false" tool="0" flavor2="3">
         <cTool flags="0">
           <incDir>
@@ -397,8 +383,6 @@
             <pElem>src</pElem>
           </incDir>
         </cTool>
-      </item>
-      <item path="src/expire_scheduler.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/geo.c" ex="false" tool="0" flavor2="3">
         <cTool flags="0">

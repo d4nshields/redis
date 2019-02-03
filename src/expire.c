@@ -189,26 +189,33 @@ void activeExpireCycle(int type) {
             while (num--) {
                 dictEntry *de;
                 long long ttl;
+                struct memokey_keydescriptor * keydescr = NULL;
 
                 if( server.d4n_expiremod) {
-                    struct key_expiry_memo * keymemo = dequeueNextExpired( now);
-                    if( !keymemo) break;
-                    db = keymemo->db;                                               // change db to the one in which presently expiring key resides
-    serverLog( LL_DEBUG, "d4n: trying to expire: %s", (char *)keymemo->key->ptr);
-                    de = dictFind( keymemo->db->dict, keymemo->key);
-                    if( !de) {
-    serverLog( LL_DEBUG, "d4n: key wasn't found: %s", (char *)keymemo->key->ptr);
-                        break;
-                    }
-    serverLog( LL_DEBUG, "d4n: got a `de` !!");
+                    do { 
+                        keydescr = memokey_dequeue( now);
+                        if( keydescr) {
+                            serverLog( LL_DEBUG, "d4n: removing key: %s", (char *)keydescr->key->ptr);
+                            serverLog( LL_DEBUG, "d4n: memokey_dequeue() keydescr =    %p", (void *)keydescr);
+                        }
+                        if( !keydescr) break;
+                        db = keydescr->db;                                               // change db to the one in which presently expiring key resides
+                        de = dictFind( keydescr->db->expires, keydescr->key->ptr);
+                        if( !de) {
+                    serverLog( LL_DEBUG, "d4n: not in expires dict: %s", (char *)keydescr->key->ptr);
+                            
+                        }
+                    } while( !de);
+                    if( !keydescr) break;
                 } else {
                     if ((de = dictGetRandomKey(db->expires)) == NULL) break;
                 }
-    serverLog( LL_DEBUG, "d4n: dequeueNextExpired() now=%lld", now);
-    serverLog( LL_DEBUG, "d4n: dequeueNextExpired() dictGetSignedIntegerVal=%ld", dictGetSignedIntegerVal(de));
                 ttl = dictGetSignedIntegerVal(de)-now;
-    serverLog( LL_DEBUG, "d4n: dequeueNextExpired() ttl=%lld", ttl);
-                if (activeExpireCycleTryExpire(db,de,now)) expired++;
+                if (activeExpireCycleTryExpire(db,de,now)) {
+                    expired++;
+                    if( keydescr)
+                        memokey_free( keydescr);
+                }
                 if (ttl > 0) {
                     /* We want the average TTL of keys yet not expired. */
                     ttl_sum += ttl;

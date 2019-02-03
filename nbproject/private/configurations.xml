@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configurationDescriptor version="100">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
-    <df root="src" name="1">
+    <df root="src" name="0">
       <df name="modules">
         <in>helloblock.c</in>
         <in>hellocluster.c</in>
@@ -47,7 +47,6 @@
       <in>endianconv.h</in>
       <in>evict.c</in>
       <in>expire.c</in>
-      <in>expire_scheduler.c</in>
       <in>fmacros.h</in>
       <in>geo.c</in>
       <in>geo.h</in>
@@ -72,6 +71,7 @@
       <in>lzfP.h</in>
       <in>lzf_c.c</in>
       <in>lzf_d.c</in>
+      <in>memokey.c</in>
       <in>memtest.c</in>
       <in>module.c</in>
       <in>multi.c</in>
@@ -80,9 +80,6 @@
       <in>object.c</in>
       <in>pqsort.c</in>
       <in>pqsort.h</in>
-      <in>priorityqueue.c</in>
-      <in>priorityqueue.h</in>
-      <in>priorityqueue_test.c</in>
       <in>pubsub.c</in>
       <in>quicklist.c</in>
       <in>quicklist.h</in>

@@ -674,15 +674,16 @@ typedef struct redisDb {
 /* key_expiry_memo. Remembers a key in a db along with it's expiry time,
  * with an additional structure to allow it to be a member of a priority queue 
  * based on the timestamp property */
-struct key_expiry_memo
+struct memokey_keydescriptor
 {
     mstime_t when;
     redisDb * db;
     robj * key;
     struct heap_elem elem;
 };
-void enqueueKeyExpiration( redisDb *db, robj *key, mstime_t when);
-struct key_expiry_memo *dequeueNextExpired( mstime_t min);
+void memokey_enqueue( redisDb *db, robj *key, mstime_t when);
+struct memokey_keydescriptor *memokey_dequeue( mstime_t min);
+void memokey_free( struct memokey_keydescriptor * memo);
 
 /* Client MULTI/EXEC state */
 typedef struct multiCmd {

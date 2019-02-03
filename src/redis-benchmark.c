@@ -648,6 +648,13 @@ int test_is_selected(char *name) {
     return strstr(config.tests,buf) != NULL;
 }
 
+long long timeInMilliseconds(void) {
+    struct timeval tv;
+
+    gettimeofday(&tv,NULL);
+    return (((long long)tv.tv_sec)*1000)+(tv.tv_usec/1000);
+}
+
 int main(int argc, const char **argv) {
     int i;
     char *data, *cmd;
@@ -655,7 +662,7 @@ int main(int argc, const char **argv) {
 
     client c;
 
-    srandom(time(NULL));
+    srandom( timeInMilliseconds());
     signal(SIGHUP, SIG_IGN);
     signal(SIGPIPE, SIG_IGN);
 
