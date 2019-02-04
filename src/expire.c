@@ -194,15 +194,12 @@ void activeExpireCycle(int type) {
                 if( server.d4n_expiremod) {
                     do { 
                         keydescr = memokey_dequeue( now);
-                        if( keydescr) {
-                            serverLog( LL_DEBUG, "d4n: removing key: %s", (char *)keydescr->key->ptr);
-                            serverLog( LL_DEBUG, "d4n: memokey_dequeue() keydescr =    %p", (void *)keydescr);
-                        }
                         if( !keydescr) break;
+                        serverLog( LL_DEBUG, "d4n: try removing key: %s", (char *)keydescr->key);
                         db = keydescr->db;                                               // change db to the one in which presently expiring key resides
-                        de = dictFind( keydescr->db->expires, keydescr->key->ptr);
+                        de = dictFind( keydescr->db->expires, keydescr->key);
                         if( !de) {
-                    serverLog( LL_DEBUG, "d4n: not in expires dict: %s", (char *)keydescr->key->ptr);
+                    serverLog( LL_DEBUG, "d4n: not in expires dict: %s", (char *)keydescr->key);
                             
                         }
                     } while( !de);

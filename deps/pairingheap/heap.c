@@ -45,11 +45,11 @@ merge (struct heap_elem *a, struct heap_elem *b,
     serverLog(0, "-----");
     serverLog(0, "d4n: heap.c: merge(): LEFT:  a=%p", (void *)a);
     struct memokey_keydescriptor * keydescr = heap_entry( a, struct memokey_keydescriptor, elem);
-    serverLog(0, "d4n: heap.c: merge():      key=%s", (char *)keydescr->key->ptr);
+    serverLog(0, "d4n: heap.c: merge():      key=%s", (char *)keydescr->key);
     serverLog(0, "d4n: heap.c: merge():     when=%lld", keydescr->when);
     serverLog(0, "d4n: heap.c: merge(): RIGHT: b=%p", (void *)b);
                                    keydescr = heap_entry( b, struct memokey_keydescriptor, elem);
-    serverLog(0, "d4n: heap.c: merge():      key=%s", (char *)keydescr->key->ptr);
+    serverLog(0, "d4n: heap.c: merge():      key=%s", (char *)keydescr->key);
     serverLog(0, "d4n: heap.c: merge():     when=%lld", keydescr->when);
   if (less (a, b, aux))
     {

@@ -678,10 +678,10 @@ struct memokey_keydescriptor
 {
     mstime_t when;
     redisDb * db;
-    robj * key;
+    void * key;
     struct heap_elem elem;
 };
-void memokey_enqueue( redisDb *db, robj *key, mstime_t when);
+void memokey_enqueue( redisDb *db, void *key, mstime_t when);
 struct memokey_keydescriptor *memokey_dequeue( mstime_t min);
 void memokey_free( struct memokey_keydescriptor * memo);
 
