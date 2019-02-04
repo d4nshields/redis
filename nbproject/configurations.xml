@@ -87,6 +87,7 @@
       <itemPath>Makefile</itemPath>
       <itemPath>nbproject/private/launcher.properties</itemPath>
     </logicalFolder>
+    <itemPath>stresstest/perf/amd-002-memokey.csv</itemPath>
   </logicalFolder>
   <sourceFolderFilter>^(nbproject)$</sourceFolderFilter>
   <sourceRootList>
@@ -860,6 +861,11 @@
             <pElem>src</pElem>
           </incDir>
         </cTool>
+      </item>
+      <item path="stresstest/perf/amd-002-memokey.csv"
+            ex="false"
+            tool="3"
+            flavor2="0">
       </item>
     </conf>
   </confs>

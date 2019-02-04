@@ -1,12 +1,6 @@
 #include "heap.h"
 #include <assert.h>
 
-#ifdef __GNUC__
-void serverLog(int level, const char *fmt, ...)
-    __attribute__((format(printf, 2, 3)));
-#else
-void serverLog(int level, const char *fmt, ...);
-#endif
 typedef long long mstime_t; /* millisecond time type. */
 typedef struct redisObject {
     unsigned type:4;
@@ -42,15 +36,6 @@ static struct heap_elem *
 merge (struct heap_elem *a, struct heap_elem *b,
        heap_less_func *less, void *aux)
 {
-    serverLog(0, "-----");
-    serverLog(0, "d4n: heap.c: merge(): LEFT:  a=%p", (void *)a);
-    struct memokey_keydescriptor * keydescr = heap_entry( a, struct memokey_keydescriptor, elem);
-    serverLog(0, "d4n: heap.c: merge():      key=%s", (char *)keydescr->key);
-    serverLog(0, "d4n: heap.c: merge():     when=%lld", keydescr->when);
-    serverLog(0, "d4n: heap.c: merge(): RIGHT: b=%p", (void *)b);
-                                   keydescr = heap_entry( b, struct memokey_keydescriptor, elem);
-    serverLog(0, "d4n: heap.c: merge():      key=%s", (char *)keydescr->key);
-    serverLog(0, "d4n: heap.c: merge():     when=%lld", keydescr->when);
   if (less (a, b, aux))
     {
       if (a->child != NULL)
@@ -79,7 +64,6 @@ merge (struct heap_elem *a, struct heap_elem *b,
 void
 heap_insert (struct heap *heap, struct heap_elem *elem, void *aux)
 {
-    serverLog(0, "d4n: heap.c: heap_insert()");
   heap->size++;
 
   elem->prev = NULL;

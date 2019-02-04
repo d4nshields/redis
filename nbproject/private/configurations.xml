@@ -137,6 +137,7 @@
       <in>zmalloc.c</in>
       <in>zmalloc.h</in>
     </df>
+    <itemPath>stresstest/perf/amd-002-memokey.csv</itemPath>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
   <confs>

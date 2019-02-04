@@ -195,7 +195,6 @@ void activeExpireCycle(int type) {
                     do { 
                         keydescr = memokey_dequeue( now);
                         if( !keydescr) break;
-                        serverLog( LL_DEBUG, "d4n: try removing key: %s", (char *)keydescr->key);
                         db = keydescr->db;                                               // change db to the one in which presently expiring key resides
                         de = dictFind( keydescr->db->expires, keydescr->key);
                         if( !de) {

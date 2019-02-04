@@ -25,26 +25,19 @@ void memokey_init()
 
 void memokey_enqueue( redisDb *db, void *key, mstime_t when)
 {
-    serverLog( LL_DEBUG, "d4n: memokey_enqueue() key=%s", (char *)key);
     if( !inited) {
         memokey_init();
     }
     
     struct memokey_keydescriptor * keydescr = (struct memokey_keydescriptor *)zcalloc( sizeof( struct memokey_keydescriptor));
-    serverLog( LL_DEBUG, "d4n: memokey_enqueue(...) keydescr = %p", (void *)keydescr);
     keydescr->db = db;
     keydescr->key = key;
     keydescr->when = when;
-    serverLog( LL_DEBUG, "d4n: ENQUEUING: heap_insert( &heaproot, %p);", (void *)&keydescr->elem);
-    serverLog( LL_DEBUG, "d4n: ENQUEUING: key: %s", (char *)keydescr->key);
-    serverLog( LL_DEBUG, "d4n: ENQUEUING: when: %lld", keydescr->when);
     heap_insert( &heaproot, &keydescr->elem, NULL);
     // do a peek to verify what we inserted
     struct heap_elem *e = heap_peek( &heaproot);
     if( e) {
         keydescr = heap_entry( e, struct memokey_keydescriptor, elem);
-        serverLog( LL_DEBUG, "d4n: ENQUEUE PEEKING: key: %s", (char *)keydescr->key);
-        serverLog( LL_DEBUG, "d4n: ENQUEUE PEEKING: when: %lld", keydescr->when);
     }
 }
 
@@ -65,8 +58,6 @@ struct memokey_keydescriptor *memokey_dequeue( mstime_t min)
         if( keydescr->when <= min) {
             e = heap_pop( &heaproot, NULL);
             keydescr = heap_entry( e, struct memokey_keydescriptor, elem);
-    serverLog( LL_DEBUG, "d4n: POPPING: key: %s", (char *)keydescr->key);
-    serverLog( LL_DEBUG, "d4n: POPPING: when: %lld", keydescr->when);
             return keydescr;
         }
     }
@@ -75,6 +66,5 @@ struct memokey_keydescriptor *memokey_dequeue( mstime_t min)
 
 void memokey_free( struct memokey_keydescriptor * keydescr)
 {
-    serverLog( LL_DEBUG, "d4n: memokey_free(                   %p)", (void *)keydescr);
     zfree( keydescr);
 }
