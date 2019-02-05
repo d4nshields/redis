@@ -156,27 +156,31 @@ static void resetClient(client c) {
 
 /* LCG algorithm to generate a random sequence in the desired range */
 
-    const unsigned long lcg_a = 1664525;
-    const unsigned long lcg_c = 1013904223;
-    unsigned long       lcg_val;
-    unsigned long       lcg_r;
+    unsigned long  lcg_a = 1664525;
+    unsigned long  lcg_c = 1013904223;
+    unsigned long  lcg_val;
+    unsigned long  lcg_r;
 
 static void lcg_rand_init( unsigned long range)
 {
-    lcg_val = random();
+    srandom(time(NULL));
+    lcg_val = (unsigned long)random();
     lcg_r = range;
 }
 
 unsigned long lcg_random()
 {
-    lcg_val = (lcg_a * lcg_val + lcg_c) % lcg_r;
+    fprintf( stderr, "%ld =>", lcg_val);
+    lcg_val = ((lcg_a * lcg_val + lcg_c) % lcg_r);
+    fprintf( stderr, "%ld\n", lcg_val);
     return lcg_val;
 }
 
 static void randomizeClientKey(client c) {
     size_t i;
 
-    size_t r_choice = random() % config.randomkeys_keyspacelen;     // patch: use same random number for all substitutions on same set of commands
+//    size_t r_choice = random() % config.randomkeys_keyspacelen;     // patch: use same random number for all substitutions on same set of commands
+    size_t r_choice = lcg_random();     // patch: use same random number for all substitutions on same set of commands
     for (i = 0; i < c->randlen; i++) {
         char *p = c->randptr[i]+11;
         size_t r = r_choice;
@@ -714,8 +718,7 @@ int main(int argc, const char **argv) {
 
     /* initialise linear congruential random number generator for the desired range
      */
-    fprintf( stderr, "kespacelen = %d", config.randomkeys_keyspacelen); 
-    lcg_rand_init( config.randomkeys_keyspacelen);
+    lcg_rand_init( (unsigned long)config.randomkeys_keyspacelen);
     
 
     config.latency = zmalloc(sizeof(long long)*config.requests);
