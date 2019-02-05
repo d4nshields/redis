@@ -154,6 +154,25 @@ static void resetClient(client c) {
     c->pending = config.pipeline;
 }
 
+/* LCG algorithm to generate a random sequence in the desired range */
+
+    const unsigned long lcg_a = 1664525;
+    const unsigned long lcg_c = 1013904223;
+    unsigned long       lcg_val;
+    unsigned long       lcg_r;
+
+static void lcg_rand_init( unsigned long range)
+{
+    lcg_val = random();
+    lcg_r = range;
+}
+
+unsigned long lcg_random()
+{
+    lcg_val = (lcg_a * lcg_val + lcg_c) % lcg_r;
+    return lcg_val;
+}
+
 static void randomizeClientKey(client c) {
     size_t i;
 
@@ -662,7 +681,6 @@ int main(int argc, const char **argv) {
 
     client c;
 
-    srandom( timeInMilliseconds());
     signal(SIGHUP, SIG_IGN);
     signal(SIGPIPE, SIG_IGN);
 
@@ -693,6 +711,12 @@ int main(int argc, const char **argv) {
     i = parseOptions(argc,argv);
     argc -= i;
     argv += i;
+
+    /* initialise linear congruential random number generator for the desired range
+     */
+    fprintf( stderr, "kespacelen = %d", config.randomkeys_keyspacelen); 
+    lcg_rand_init( config.randomkeys_keyspacelen);
+    
 
     config.latency = zmalloc(sizeof(long long)*config.requests);
 

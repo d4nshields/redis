@@ -1,5 +1,6 @@
 #!/bin/sh
-ITERATIONS=2097152
+#ITERATIONS=2097152
+ITERATIONS=1776
 while [ $ITERATIONS -ge 1024 ]; do
   src/redis-cli flushdb >/dev/null
   echo $ITERATIONS,`src/redis-benchmark -r 1000000000 -n $ITERATIONS eval "local r=__rand_int__; \

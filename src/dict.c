@@ -487,7 +487,6 @@ dictEntry *dictFind(dict *d, const void *key)
         he = d->ht[table].table[idx];
         while(he) {
             if (key==he->key || dictCompareKeys(d, key, he->key)) {
-//                serverLog( LL_DEBUG, "d4n: found dictEntry->key = %s, dictEntry->val = %p\n", (char *)dictGetKey(he), dictGetVal(he));
                 return he;
             }
             he = he->next;
