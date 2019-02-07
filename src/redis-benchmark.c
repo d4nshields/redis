@@ -787,9 +787,9 @@ int main(int argc, const char **argv) {
             free(cmd);
         }
 
-        if (test_is_selected("expire")) {
-            len = redisFormatCommand(&cmd,"SET key:__rand_int__ %s\r\nEXPIRE key:__rand_int__ 1", data);
-            benchmark("SET",cmd,len);
+        if (test_is_selected("psetex")) {
+            len = redisFormatCommand(&cmd,"PSETEX key:__rand_int__ 100 %s", data);
+            benchmark("PSETEX",cmd,len);
             free(cmd);
         }
 
