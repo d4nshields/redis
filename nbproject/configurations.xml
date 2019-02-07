@@ -88,6 +88,7 @@
       <itemPath>nbproject/private/launcher.properties</itemPath>
     </logicalFolder>
     <itemPath>stresstest/perf/amd-002-memokey.csv</itemPath>
+    <itemPath>stresstest/setexpire.lua</itemPath>
   </logicalFolder>
   <sourceFolderFilter>^(nbproject)$</sourceFolderFilter>
   <sourceRootList>
@@ -866,6 +867,8 @@
             ex="false"
             tool="3"
             flavor2="0">
+      </item>
+      <item path="stresstest/setexpire.lua" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
   </confs>

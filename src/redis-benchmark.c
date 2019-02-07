@@ -154,9 +154,19 @@ static void resetClient(client c) {
     c->pending = config.pipeline;
 }
 
-/************************************************************************/
-/* XORSHIFT RANDOM SEQUENCE ALGORITHM                                   */
-/* see: https://en.wikipedia.org/wiki/Xorshift                          */
+/************************************************************************
+ * XORSHIFT PSUEDO RANDOM SEQUENCE ALGORITHM                           
+ * see: https://en.wikipedia.org/wiki/Xorshift                         
+ *                                                                      
+ * I generated 2 million numbers and I would, from the stats, expect to 
+ * see around 31 repetitions in that set, using the library function 
+ * random().  The xorshift algorithm guarantees uniqueness over the range 
+ * of 0..2^64-1, which is just what I needed for my test cases.
+ * 
+ * i am using a uint64_t here because we should actually use 40bit width
+ * for the calculations because that covers the 12 digit base 10 re-
+ * presentation of the number
+ */
 
 static uint64_t xorshift_state;
 
@@ -171,6 +181,7 @@ static uint64_t xorshift64_next()
 	x^= x << 13;
 	x^= x >> 7;
 	x^= x << 17;
+        x = x & 0b1111111111111111111111111111111111111111; /* 40 bits roughly corresponds to the 12 digits we are interested in */
     xorshift_state = x;
     return x;
 }
@@ -178,14 +189,14 @@ static uint64_t xorshift64_next()
 /************************************************************************/
 
 static void randomizeClientKey(client c) {
-    size_t i;
+    uint64_t i;
 
 //    size_t r_choice = random() % config.randomkeys_keyspacelen;     // patch: use same random number for all substitutions on same set of commands
-    size_t r_choice = xorshift64_next();     // patch: use same random number for all substitutions on same set of commands
+    uint64_t r_choice = xorshift64_next();     // patch: use xorshift64 algorithm to generate long period of *non-repeating* psuedo random numbers
     for (i = 0; i < c->randlen; i++) {
         char *p = c->randptr[i]+11;
-        size_t r = r_choice;
-        size_t j;
+        uint64_t r = r_choice;
+        uint64_t j;
 
         for (j = 0; j < 12; j++) {
             *p = '0'+r%10;
