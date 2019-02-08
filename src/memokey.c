@@ -31,6 +31,9 @@ void memokey_enqueue( redisDb *db, void *key, mstime_t when)
     
     struct memokey_keydescriptor * keydescr = (struct memokey_keydescriptor *)zcalloc( sizeof( struct memokey_keydescriptor));
     keydescr->db = db;
+    if( strlen( key) == 0) {
+        fprintf( stderr, "memokey_enqueue: hold on, key is empty!");
+    }
     keydescr->key = key;
     keydescr->when = when;
     heap_insert( &heaproot, &keydescr->elem, NULL);

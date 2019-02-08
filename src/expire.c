@@ -196,13 +196,21 @@ void activeExpireCycle(int type) {
                         keydescr = memokey_dequeue( now);
                         if( !keydescr) break;
                         db = keydescr->db;                                               // change db to the one in which presently expiring key resides
+                        if( strlen( keydescr->key) == 0) {
+                            fprintf( stderr, "expire.c: activeExpireCycle(): keydesc->key is empty\n");
+                            fprintf( stderr, "expire.c: keydesc = %p\n", (void *)keydescr);
+                            fprintf( stderr, "expire.c: keydesc->db = %p\n", (void *)keydescr->db);
+                            fprintf( stderr, "expire.c: keydesc->key = %p\n", keydescr->key);
+                            
+                            break;
+                        }
                         de = dictFind( keydescr->db->expires, keydescr->key);
                         if( !de) {
                     serverLog( LL_DEBUG, "d4n: not in expires dict: %s", (char *)keydescr->key);
                             
                         }
                     } while( !de);
-                    if( !keydescr) break;
+                    if( !keydescr || strlen( keydescr->key) == 0) break;
                 } else {
                     if ((de = dictGetRandomKey(db->expires)) == NULL) break;
                 }

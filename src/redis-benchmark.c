@@ -39,6 +39,7 @@
 #include <sys/time.h>
 #include <signal.h>
 #include <assert.h>
+#include <math.h>
 
 #include <sds.h> /* Use hiredis sds. */
 #include "ae.h"
@@ -168,21 +169,22 @@ static void resetClient(client c) {
  * presentation of the number
  */
 
-static uint64_t xorshift_state;
+static uint64_t prng_state;
+static uint64_t prng_bitmask;
 
-static void xorshift64_init( uint64_t seed)
+static void prng_init( uint64_t seed, unsigned num_bits)
 {
-    xorshift_state = seed;
+    prng_bitmask = ((uint64_t)1 << (num_bits))-1;
+    prng_state = seed & prng_bitmask;
 }
 
-static uint64_t xorshift64_next()
+static uint64_t prng_next()
 {
-    uint64_t x = xorshift_state;
-	x^= x << 13;
+    uint64_t x = prng_state;
+	x^= (x << 13) & prng_bitmask;
 	x^= x >> 7;
-	x^= x << 17;
-        x = x & 0b1111111111111111111111111111111111111111; /* 40 bits roughly corresponds to the 12 digits we are interested in */
-    xorshift_state = x;
+	x^= (x << 17) & prng_bitmask;
+    prng_state = x;
     return x;
 }
 
@@ -192,7 +194,7 @@ static void randomizeClientKey(client c) {
     uint64_t i;
 
 //    size_t r_choice = random() % config.randomkeys_keyspacelen;     // patch: use same random number for all substitutions on same set of commands
-    uint64_t r_choice = xorshift64_next();     // patch: use xorshift64 algorithm to generate long period of *non-repeating* psuedo random numbers
+    uint64_t r_choice = prng_next();     // patch: use xorshift64 algorithm to generate long period of *non-repeating* psuedo random numbers
     for (i = 0; i < c->randlen; i++) {
         char *p = c->randptr[i]+11;
         uint64_t r = r_choice;
@@ -559,8 +561,13 @@ int parseOptions(int argc, const char **argv) {
             config.randomkeys_keyspacelen = atoi(argv[++i]);
             if (config.randomkeys_keyspacelen < 0)
                 config.randomkeys_keyspacelen = 0;
+        } else if (!strcmp(argv[i],"-R")) {
+            if (lastarg) goto invalid;
+            config.randomkeys = 1;
+            srandom(time(NULL)); 
+            prng_init( (uint64_t) random(), atoi(argv[++i]));
         } else if (!strcmp(argv[i],"-q")) {
-            config.quiet = 1;
+           config.quiet = 1;
         } else if (!strcmp(argv[i],"--csv")) {
             config.csv = 1;
         } else if (!strcmp(argv[i],"-l")) {
@@ -731,8 +738,6 @@ int main(int argc, const char **argv) {
     /* initialise xorshift psuedo-random sequence for the desired range
      */
      
-    srandom(time(NULL)); 
-    xorshift64_init( (uint64_t) random());
 
     config.latency = zmalloc(sizeof(long long)*config.requests);
 
@@ -788,7 +793,7 @@ int main(int argc, const char **argv) {
         }
 
         if (test_is_selected("psetex")) {
-            len = redisFormatCommand(&cmd,"PSETEX key:__rand_int__ 100 %s", data);
+            len = redisFormatCommand(&cmd,"PSETEX key:__rand_int__ 1000 %s", data);
             benchmark("PSETEX",cmd,len);
             free(cmd);
         }
