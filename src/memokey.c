@@ -1,4 +1,7 @@
 
+/* memokey.c Copyright Daniel Shields 2019 */
+
+
 #include "server.h"
 #include <heap.h>
 #include <string.h>
